@@ -4,6 +4,7 @@ import logging
 from confluent_kafka import Consumer, KafkaError, TopicPartition
 
 from app.utils.utils import get_secret
+from app.utils.postgres import connect_to_postgres, manipulate_record
 
 # Конфигурация логирования
 logging.basicConfig(
@@ -28,6 +29,7 @@ def consume_message(topic: str | None = None, offset: int | None = None) -> None
         "bootstrap.servers": bootstrap_server,
         "group.id": "consumer.py",
         "auto.offset.reset": "earliest",
+        "enable.auto.commit": False,
     }
 
     # Создаем Consumer
@@ -47,6 +49,8 @@ def consume_message(topic: str | None = None, offset: int | None = None) -> None
         consumer.subscribe([topic])
 
     try:
+        # Подключаемся к целевому Postgres
+        con = connect_to_postgres(trg=True, alias="pg_trg")
         while True:
             msg = consumer.poll(1.0)
             if msg is None:
@@ -65,8 +69,12 @@ def consume_message(topic: str | None = None, offset: int | None = None) -> None
                     decoded_msg = raw.decode("utf-8")
                     obj = json.loads(decoded_msg)
                     payload = obj["payload"]
-                    logging.info(f"Received message {payload}")
-                    option = payload["op"]
+                    logging.info(f"Received message with payload: {payload}")
+                    try:
+                        manipulate_record(con=con, payload=payload, trg=True, alias="pg_trg")
+                        consumer.commit(msg)
+                    except Exception as e:
+                        logging.error(f"Can't process message with payload: {payload}. Error: {e}")
                 except Exception as e:
                     logging.error(f"Error: {e}")
     except KeyboardInterrupt:
@@ -79,7 +87,7 @@ if __name__ == "__main__":
     topic_name = get_secret("KAFKA_USERS_COORDINATES_TOPIC")
 
     # Читаем с начала
-    # consume_message(topic=topic_name)
+    consume_message(topic=topic_name)
 
     # Читаем с определенного оффсета
-    consume_message(topic=topic_name, offset=7)
+    # consume_message(topic=topic_name, offset=0)
