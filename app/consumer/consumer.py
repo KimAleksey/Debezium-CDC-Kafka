@@ -89,5 +89,5 @@ if __name__ == "__main__":
     # Читаем с начала
     consume_message(topic=topic_name)
 
-    # Читаем с определенного оффсета
+    # Читаем с определенного offset.
     # consume_message(topic=topic_name, offset=0)

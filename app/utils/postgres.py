@@ -262,4 +262,5 @@ def manipulate_record(
 
 
 if __name__ == "__main__":
+    # Выполнит первичную настройку целевой Postgres. Создание схемы и таблицы.
     init_postgres_trg()
