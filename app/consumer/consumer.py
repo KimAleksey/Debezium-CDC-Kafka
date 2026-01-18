@@ -83,7 +83,12 @@ def consume_message(topic: str | None = None, offset: int | None = None) -> None
         consumer.close()
 
 
-if __name__ == "__main__":
+def consumer() -> None:
+    """
+    Реализация Consumer.
+
+    :return: None
+    """
     topic_name = get_secret("KAFKA_USERS_COORDINATES_TOPIC")
 
     # Читаем с начала
@@ -91,3 +96,7 @@ if __name__ == "__main__":
 
     # Читаем с определенного offset.
     # consume_message(topic=topic_name, offset=0)
+
+
+if __name__ == "__main__":
+    consumer()
