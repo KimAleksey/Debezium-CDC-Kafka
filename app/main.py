@@ -1,11 +1,12 @@
 import multiprocessing
 import subprocess
+import sys
 
 from app.utils.postgres import init_postgres_trg
 
 
-def run_script(script_path):
-    subprocess.run(["python", script_path])
+def run_script(module_name):
+    subprocess.run([sys.executable, "-m", module_name])
 
 
 def main():
@@ -13,9 +14,9 @@ def main():
     init_postgres_trg()
 
     # Consumer
-    script1 = "./consumer/consumer.py"
+    script1 = "app.consumer.consumer"
     # Generator
-    script2 = "./utils/generate.py"
+    script2 = "app.utils.generate"
 
     # Создаём процессы
     p1 = multiprocessing.Process(target=run_script, args=(script1,))
