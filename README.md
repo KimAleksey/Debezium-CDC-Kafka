@@ -98,6 +98,12 @@ cp .env.example .env
 docker compose up -d
 ```
 
+### Зарегистрировать подключение
+
+```bash
+curl -i -X POST -H "Accept:application/json" -H  "Content-Type:application/json" http://localhost:8083/connectors/ -d @register-postgres.json
+```
+
 ### Запуск программы
 
 ```bash
